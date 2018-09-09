@@ -21,6 +21,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 .idea/
+xcshareddata
 #
 #
 # CocoaPods
@@ -32,3 +33,4 @@ DerivedData
 Pods/
 #*.xcworkspace
 #!default.xcworkspace
+
