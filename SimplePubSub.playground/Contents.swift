@@ -129,6 +129,53 @@ describe("Simple Pub Sub") {
                 expect(secondSubValues).to(beEmpty())
             }
         }
+
+        describe("combine (spot check for all `combine()` functions)") {
+            var firstSubValues: [(String, Int)]!
+            var secondSubValues: [(String, Int)]!
+            var otherPublisher: Publisher<Int>!
+
+            beforeEach {
+                firstSubValues = []
+                secondSubValues = []
+                otherPublisher = Publisher()
+
+                let combinedObservable = publisher.observable.combine(otherPublisher.observable)
+
+                _ = combinedObservable.subscribe { (int, string) in
+                    firstSubValues.append((int, string))
+                }
+
+                let secondDisposable = combinedObservable.subscribe { value in
+                    secondSubValues.append(value)
+                }
+
+                secondDisposable.dispose()
+
+                publisher.emit("a")
+                publisher.emit("b")
+                otherPublisher.emit(1) // should not emit a combined value until here (when both publishers have a value)
+                publisher.emit("c")
+                otherPublisher.emit(2)
+            }
+
+            it("should emit the latest values of each publisher once each have a value") {
+                expect(firstSubValues).to(haveCount(3))
+
+                expect(firstSubValues[0].0).to(equal(("b")))
+                expect(firstSubValues[0].1).to(equal((1)))
+
+                expect(firstSubValues[1].0).to(equal(("c")))
+                expect(firstSubValues[1].1).to(equal((1)))
+
+                expect(firstSubValues[2].0).to(equal(("c")))
+                expect(firstSubValues[2].1).to(equal((2)))
+            }
+
+            it("should NOT emit to removed subscribers") {
+                expect(secondSubValues).to(beEmpty())
+            }
+        }
     }
 
     describe("Disposable") {

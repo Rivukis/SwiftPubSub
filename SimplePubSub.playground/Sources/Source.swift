@@ -152,3 +152,104 @@ extension Observable {
         return observable
     }
 }
+
+// MARK: - Combine
+
+extension Observable {
+    public func combine<T>(_ other: Observable<T>) -> Observable<(Element, T)> {
+        return Observable.combine(self, other)
+    }
+
+    public static func combine<T>(_ other0: Observable<Element>, _ other1: Observable<T>) -> Observable<(Element, T)> {
+        let observable = Observable<(Element, T)>()
+
+        var lastValues: (Element?, T?) = (nil, nil)
+
+        let disposable0 = other0.subscribe { value0 in
+            lastValues = (value0, lastValues.1)
+            if let value1 = lastValues.1 {
+                observable.emit((value0, value1))
+            }
+        }
+        let disposable1 = other1.subscribe { value1 in
+            lastValues = (lastValues.0, value1)
+            if let value0 = lastValues.0 {
+                observable.emit((value0, value1))
+            }
+        }
+
+        observable.setupChain(parent: other0, chainedDisposable: disposable0)
+        observable.setupChain(parent: other1, chainedDisposable: disposable1)
+
+        return observable
+    }
+
+    public static func combine<T, U>(_ other0: Observable<Element>, _ other1: Observable<T>, _ other2: Observable<U>) -> Observable<(Element, T, U)> {
+        let observable = Observable<(Element, T, U)>()
+
+        var lastValues: (Element?, T?, U?) = (nil, nil, nil)
+
+        let disposable0 = other0.subscribe { value0 in
+            lastValues = (value0, lastValues.1, lastValues.2)
+            if let value1 = lastValues.1, let value2 = lastValues.2 {
+                observable.emit((value0, value1, value2))
+            }
+        }
+        let disposable1 = other1.subscribe { value1 in
+            lastValues = (lastValues.0, value1, lastValues.2)
+            if let value0 = lastValues.0, let value2 = lastValues.2 {
+                observable.emit((value0, value1, value2))
+            }
+        }
+        let disposable2 = other2.subscribe { value2 in
+            lastValues = (lastValues.0, lastValues.1, value2)
+            if let value0 = lastValues.0, let value1 = lastValues.1 {
+                observable.emit((value0, value1, value2))
+            }
+        }
+
+        observable.setupChain(parent: other0, chainedDisposable: disposable0)
+        observable.setupChain(parent: other1, chainedDisposable: disposable1)
+        observable.setupChain(parent: other2, chainedDisposable: disposable2)
+
+        return observable
+    }
+
+    public static func combine<T, U, V>(_ other0: Observable<Element>, _ other1: Observable<T>, _ other2: Observable<U>, _ other3: Observable<V>) -> Observable<(Element, T, U, V)> {
+        let observable = Observable<(Element, T, U, V)>()
+
+        var lastValues: (Element?, T?, U?, V?) = (nil, nil, nil, nil)
+
+        let disposable0 = other0.subscribe { value0 in
+            lastValues = (value0, lastValues.1, lastValues.2, lastValues.3)
+            if let value1 = lastValues.1, let value2 = lastValues.2, let value3 = lastValues.3 {
+                observable.emit((value0, value1, value2, value3))
+            }
+        }
+        let disposable1 = other1.subscribe { value1 in
+            lastValues = (lastValues.0, value1, lastValues.2, lastValues.3)
+            if let value0 = lastValues.0, let value2 = lastValues.2, let value3 = lastValues.3 {
+                observable.emit((value0, value1, value2, value3))
+            }
+        }
+        let disposable2 = other2.subscribe { value2 in
+            lastValues = (lastValues.0, lastValues.1, value2, lastValues.3)
+            if let value0 = lastValues.0, let value1 = lastValues.1, let value3 = lastValues.3 {
+                observable.emit((value0, value1, value2, value3))
+            }
+        }
+        let disposable3 = other3.subscribe { value3 in
+            lastValues = (lastValues.0, lastValues.1, lastValues.2, value3)
+            if let value0 = lastValues.0, let value1 = lastValues.1, let value2 = lastValues.2 {
+                observable.emit((value0, value1, value2, value3))
+            }
+        }
+
+        observable.setupChain(parent: other0, chainedDisposable: disposable0)
+        observable.setupChain(parent: other1, chainedDisposable: disposable1)
+        observable.setupChain(parent: other2, chainedDisposable: disposable2)
+        observable.setupChain(parent: other3, chainedDisposable: disposable3)
+
+        return observable
+    }
+}
