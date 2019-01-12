@@ -176,6 +176,43 @@ describe("Simple Pub Sub") {
                 expect(secondSubValues).to(beEmpty())
             }
         }
+
+        describe("merge") {
+            var firstSubValues: [String]!
+            var secondSubValues: [String]!
+
+            let publisherEmit = "string 1"
+            let otherPublisherEmit = "string 2"
+
+            beforeEach {
+                firstSubValues = []
+                secondSubValues = []
+
+                let otherPublisher = Publisher<String>()
+                _ = Observable.merge(publisher.observable, otherPublisher.observable).subscribe { value in
+                    firstSubValues.append(value)
+                }
+
+                let secondDisposable = Observable.merge(publisher.observable, otherPublisher.observable).subscribe { value in
+                    secondSubValues.append(value)
+                }
+
+                secondDisposable.dispose()
+
+                publisher.emit(publisherEmit)
+                otherPublisher.emit(otherPublisherEmit)
+            }
+
+            it("should only emit element when filter predicate returns true") {
+                expect(firstSubValues).to(haveCount(2))
+                expect(firstSubValues[0]).to(equal(publisherEmit))
+                expect(firstSubValues[1]).to(equal(otherPublisherEmit))
+            }
+
+            it("should NOT emit to removed subscribers") {
+                expect(secondSubValues).to(beEmpty())
+            }
+        }
     }
 
     describe("Disposable") {

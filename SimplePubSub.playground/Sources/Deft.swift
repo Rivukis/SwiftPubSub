@@ -194,7 +194,7 @@ public func passComparison<T: Comparable>(_ comparisonFunction: @escaping (T, T)
 
  - Parameter expectedCount: The expected count
  */
-public func haveCount<C: Collection, IdxDist>(_ expectedCount: IdxDist) -> Matcher<C, IdxDist> where C.IndexDistance == IdxDist {
+public func haveCount<C: Collection>(_ expectedCount: Int) -> Matcher<C, Int> {
     return Matcher { actual in
         return actual.count == expectedCount
     }

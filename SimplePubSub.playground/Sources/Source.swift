@@ -253,3 +253,23 @@ extension Observable {
         return observable
     }
 }
+
+// MARK: - Merge
+
+extension Observable {
+    public static func merge(_ lhs: Observable<Element>, _ rhs: Observable<Element>) -> Observable<Element> {
+        let observable = Observable<Element>()
+
+        let lhsDisposable = lhs.subscribe { value in
+            observable.emit(value)
+        }
+        let rhsDisposable = rhs.subscribe { value in
+            observable.emit(value)
+        }
+
+        observable.setupChain(parent: lhs, chainedDisposable: lhsDisposable)
+        observable.setupChain(parent: rhs, chainedDisposable: rhsDisposable)
+
+        return observable
+    }
+}
