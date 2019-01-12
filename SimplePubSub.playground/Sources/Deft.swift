@@ -214,7 +214,7 @@ public func haveCount<C: Collection>(_ expectedCount: Int) -> Matcher<C, Int> {
  */
 public func haveCount(_ expectedCount: Int) -> Matcher<String, Int> {
     return Matcher { actual in
-        return actual.characters.count == expectedCount
+        return actual.count == expectedCount
     }
 }
 

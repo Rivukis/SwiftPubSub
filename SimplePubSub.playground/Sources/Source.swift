@@ -151,6 +151,20 @@ extension Observable {
 
         return observable
     }
+
+    public func filterNils<T>() -> Observable<T> where Element == Optional<T> {
+        let observable = Observable<T>()
+
+        let disposable = subscribe { optional in
+            if let value = optional {
+                observable.emit(value)
+            }
+        }
+
+        observable.setupChain(parent: self, chainedDisposable: disposable)
+
+        return observable
+    }
 }
 
 // MARK: - Combine

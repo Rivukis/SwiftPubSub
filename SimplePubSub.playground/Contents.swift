@@ -130,6 +130,43 @@ describe("Simple Pub Sub") {
             }
         }
 
+        describe("filter out nils") {
+            var firstSubValues: [String]!
+            var secondSubValues: [String]!
+
+            let emittedValue = "i was sent"
+
+            beforeEach {
+                firstSubValues = []
+                secondSubValues = []
+
+                let optionalPublisher = Publisher<String?>()
+
+                _ = optionalPublisher.observable.filterNils().subscribe { value in
+                    firstSubValues.append(value)
+                }
+
+                let secondDisposable = optionalPublisher.observable.filterNils().subscribe { value in
+                    secondSubValues.append(value)
+                }
+
+                secondDisposable.dispose()
+
+                optionalPublisher.emit(nil)
+                optionalPublisher.emit(emittedValue)
+                optionalPublisher.emit(nil)
+            }
+
+            it("should only emit element when filter predicate returns true") {
+                expect(firstSubValues).to(haveCount(1))
+                expect(firstSubValues[0]).to(equal(emittedValue))
+            }
+
+            it("should NOT emit to removed subscribers") {
+                expect(secondSubValues).to(beEmpty())
+            }
+        }
+
         describe("combine (spot check for all `combine()` functions)") {
             var firstSubValues: [(String, Int)]!
             var secondSubValues: [(String, Int)]!
